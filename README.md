@@ -102,7 +102,7 @@ dotnet publish SecurePasswordManager.App -c Release -r osx-arm64 --self-containe
 
 *(Здесь можно добавить скриншоты интерфейса приложения)*
 
-![Главный экран](https://via.placeholder.com/800x450.png?text=Screenshot+of+Secure+Password+Manager)
+![Главный экран](https://github.com/DeTe-Rykadzava/SecurePasswordGenerator/blob/main/Assets/Main%20Window.png)
 
 ## 🤝 Вклад в проект
 Pull Request'ы приветствуются! Для серьезных изменений, пожалуйста, сначала откройте [Issue](https://github.com/DeTe-Rykadzava/SecurePasswordGenerator/issues), чтобы мы могли обсудить, что именно вы хотите изменить или добавить.
