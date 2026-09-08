@@ -1,0 +1,153 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SecurePasswordManager.App.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SecurePasswordManager.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Width="800" Height="600"
+        Title="Secure Password Manager">
+
+     <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+         <!-- Мастер-пароль -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Мастер-пароль:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox    Text="{Binding MasterPassword}"  
+                        PasswordChar="*" 
+                        PlaceholderText="Введите мастер-пароль для шифрования"/>
+        </StackPanel>
+
+        <!-- Генерация пароля -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,20">
+            <TextBlock Text="Генератор паролей" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+            
+            <Grid ColumnDefinitions="*,*" Margin="0,0,0,10">
+                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                    <TextBlock Text="Длина пароля:" Margin="0,0,0,5"/>
+                    <NumericUpDown Value="{Binding PasswordLength}" 
+                                   Minimum="8" 
+                                   Maximum="64" 
+                                   Increment="1"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Набор символов:" Margin="0,0,0,5"/>
+                    <CheckBox Content="Заглавные (A-Z)" IsChecked="{Binding IncludeUppercase}"/>
+                    <CheckBox Content="Строчные (a-z)" IsChecked="{Binding IncludeLowercase}"/>
+                    <CheckBox Content="Цифры (0-9)" IsChecked="{Binding IncludeNumbers}"/>
+                    <CheckBox Content="Спецсимволы (!@#)" IsChecked="{Binding IncludeSpecial}"/>
+                </StackPanel>
+            </Grid>
+            <Button Content="Сгенерировать пароль" 
+                    Command="{Binding GeneratePasswordCommand}"
+                    HorizontalAlignment="Left"
+                    Padding="20,10"/>
+        </StackPanel>
+
+        <!-- Результат и сохранение -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,20">
+            <TextBlock Text="Сгенерированный пароль:" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding GeneratedPassword}" 
+                     IsReadOnly="True" 
+                     FontFamily="Consolas"
+                     FontSize="14"
+                     Margin="0,0,0,10"/>
+
+             <!-- Индикатор сложности пароля -->
+            <TextBlock Text="{Binding PasswordStrengthText}" 
+                       Foreground="{Binding PasswordStrengthColor}"
+                       FontWeight="Bold"
+                       FontSize="12"
+                       Margin="0,0,0,10"/>
+
+            <TextBlock Text="Название для сохранения:" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Title}" 
+                     PlaceholderText="Например: Google, GitHub, Банк"
+                     Margin="0,0,0,10"/>
+
+            <Button Content="Сохранить пароль" 
+                    Command="{Binding SavePasswordCommand}"
+                    HorizontalAlignment="Left"
+                    Padding="20,10"/>
+        </StackPanel>
+
+        <!-- Статус -->
+        <TextBlock Grid.Row="3" 
+                   Text="{Binding StatusMessage}" 
+                   Foreground="Green"
+                   Margin="0,0,0,10"/>
+
+        <!-- Список сохраненных паролей -->
+        <StackPanel Grid.Row="4">
+            <TextBlock Text="Сохраненные пароли:" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+            
+            <ListBox ItemsSource="{Binding Passwords}" Height="200">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*, Auto, Auto">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" Foreground="Gray"/>
+                            </StackPanel>
+                            <!-- Кнопка "Показать" передает весь объект PasswordEntry в команду -->
+                            <Button Grid.Column="1" 
+                                    Content="Показать" 
+                                    Command="{Binding $parent[Window].DataContext.ShowPasswordCommand}" 
+                                    CommandParameter="{Binding}"
+                                    Margin="5"
+                                    Padding="10,5"/>
+
+                            <Button Grid.Column="2" 
+                                    Content="Удалить" 
+                                    Command="{Binding $parent[Window].DataContext.DeletePasswordCommand}" 
+                                    CommandParameter="{Binding}"
+                                    Margin="5"
+                                    Padding="10,5"
+                                    Classes="danger"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <!-- Блок расшифрованного пароля и копирования -->
+        <StackPanel Grid.Row="5" Margin="0,20,0,0">
+            <TextBlock Text="Расшифрованный пароль:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <Grid ColumnDefinitions="*, Auto">
+                <TextBox Grid.Column="0" 
+                         Text="{Binding DecryptedPassword}" 
+                         IsReadOnly="True" 
+                         FontFamily="Consolas"
+                         FontSize="14"
+                         PlaceholderText="Здесь появится расшифрованный пароль"/>
+                
+                <Button Grid.Column="1" 
+                        Content="Копировать" 
+                        Command="{Binding CopyPasswordCommand}"
+                        Margin="10,0,0,0"
+                        Padding="15,5"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- Кнопка обновления -->
+        <Button Grid.Row="6" 
+                Content="Обновить список" 
+                Command="{Binding LoadPasswordsCommand}"
+                HorizontalAlignment="Left"
+                Padding="20,10"
+                Margin="0,10,0,0"/>
+    </Grid>
+
+</Window>
